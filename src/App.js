@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
-import Persons from "./components/Persons";
+import Person from "./components/Persons";
 import phoneService from "./services/contacts";
 
 const App = () => {
@@ -10,14 +10,14 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [newSearchTerm, setNewSearchTerm] = useState("");
 
-  const hook = () => {
-    phoneService.getAll().then((initialContacts) => {
+  //Get initial notes from server
+  useEffect(() => {
+    phoneService.getAllContacts().then((initialContacts) => {
       setPersons(initialContacts);
     });
-  };
+  }, []);
 
-  useEffect(hook, []);
-
+  //Filter search results
   const personsToShow =
     newSearchTerm.length > 0
       ? persons.filter((person) =>
@@ -25,6 +25,7 @@ const App = () => {
         )
       : persons;
 
+  //Add the person with the phone number to the server
   const addContact = (event) => {
     event.preventDefault();
     let isDuplicate = false;
@@ -34,16 +35,62 @@ const App = () => {
     });
 
     if (isDuplicate) {
-      alert(`${newName} is already added to phonebook.`);
+      updateContact();
     } else {
       const newPerson = {
         name: newName,
         number: newNumber,
       };
-      phoneService.create(newPerson).then( (person) => persons.concat(person));
-      setPersons(persons.concat(newPerson));
-      setNewName("");
-      setNewNumber("");
+      phoneService.createContact(newPerson).then((person) => {
+        setPersons(persons.concat(newPerson));
+        setNewName("");
+        setNewNumber("");
+      });
+    }
+  };
+
+  //Remove contact from server
+  const removeContact = (personToBeRemoved) => {
+    if (window.confirm(`Delete ${personToBeRemoved.name}`)) {
+      phoneService
+        .removeContact(personToBeRemoved.id)
+        .then((_) => {
+          setPersons(
+            persons.filter((person) => person.name !== personToBeRemoved.name)
+          );
+        })
+        .catch((error) => {
+          alert(`error happened: ${error}`);
+        });
+    }
+  };
+
+  //Update contact number
+  const updateContact = () => {
+    if (
+      window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      )
+    ) {
+      const personToBeUpdated = persons.find(
+        (person) => person.name === newName
+      );
+      const updatedPerson = { ...personToBeUpdated, number: newNumber };
+
+      phoneService
+        .updateContact(updatedPerson)
+        .then((returnedPerson) => {
+          setPersons(
+            persons.map((person) =>
+              person.name !== updatedPerson.name ? person : returnedPerson
+            )
+          );
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          alert(`Error happened: ${error}`);
+        });
     }
   };
 
@@ -76,7 +123,15 @@ const App = () => {
       />
 
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} />
+      <div>
+        {personsToShow.map((person) => (
+          <Person
+            key={person.name}
+            person={person}
+            deletePerson={() => removeContact(person)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

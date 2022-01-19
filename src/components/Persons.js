@@ -1,15 +1,14 @@
 import React from "react";
 
-const Persons = ({ personsToShow }) => {
+const Person = ({ person, deletePerson }) => {
   return (
     <div>
-      {personsToShow.map((person) => (
-        <p key={person.name}>
-          {person.name} {person.number}
-        </p>
-      ))}
+      {person.name} {person.number}
+      <button type="button" onClick={deletePerson}>
+        delete
+      </button>
     </div>
   );
 };
 
-export default Persons;
+export default Person;

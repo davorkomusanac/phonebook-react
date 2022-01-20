@@ -10,6 +10,10 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newSearchTerm, setNewSearchTerm] = useState("");
+  const [notification, setNotification] = useState({
+    message: "",
+    isErrorNotification: false,
+  });
 
   //Get initial notes from server
   useEffect(() => {
@@ -42,11 +46,23 @@ const App = () => {
         name: newName,
         number: newNumber,
       };
-      phoneService.createContact(newPerson).then((person) => {
-        setPersons(persons.concat(newPerson));
-        setNewName("");
-        setNewNumber("");
-      });
+      phoneService
+        .createContact(newPerson)
+        .then((person) => {
+          setPersons(persons.concat(newPerson));
+          setNewName("");
+          setNewNumber("");
+          setNotification({
+            message: `Added ${newPerson.name}`,
+            isErrorNotification: false,
+          });
+          setTimeout(() => {
+            setNotification({ message: "", isErrorNotification: false });
+          }, 5000);
+        })
+        .catch((error) => {
+          handleErrorPopup(error);
+        });
     }
   };
 
@@ -61,7 +77,7 @@ const App = () => {
           );
         })
         .catch((error) => {
-          alert(`error happened: ${error}`);
+          handleErrorPopup(error);
         });
     }
   };
@@ -88,11 +104,28 @@ const App = () => {
           );
           setNewName("");
           setNewNumber("");
+          setNotification({
+            message: `Updated ${updatedPerson.name}`,
+            isErrorNotification: false,
+          });
+          setTimeout(() => {
+            setNotification({ message: "", isErrorNotification: false });
+          }, 5000);
         })
         .catch((error) => {
-          alert(`Error happened: ${error}`);
+          handleErrorPopup(error);
         });
     }
+  };
+
+  const handleErrorPopup = (error) => {
+    setNotification({
+      message: `There was an error: "${error}"`,
+      isErrorNotification: true,
+    });
+    setTimeout(() => {
+      setNotification({ message: "", isErrorNotification: false });
+    }, 5000);
   };
 
   const handleNameChange = (event) => {
@@ -114,7 +147,10 @@ const App = () => {
         newSearchTerm={newSearchTerm}
         handleSearchTermChange={handleSearchTermChange}
       />
-      <Notification message={"Error message test"} isError={false}/>
+      <Notification
+        message={notification.message}
+        isError={notification.isErrorNotification}
+      />
       <h2>add a new</h2>
       <PersonForm
         addName={addContact}

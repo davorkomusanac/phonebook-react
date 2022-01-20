@@ -22,7 +22,7 @@ const Notification = ({ message, isError }) => {
     marginBottom: 10,
   };
 
-  if (message === null) {
+  if (message === null || message.length === 0) {
     return null;
   }
 

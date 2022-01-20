@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Persons";
 import phoneService from "./services/contacts";
@@ -113,6 +114,7 @@ const App = () => {
         newSearchTerm={newSearchTerm}
         handleSearchTermChange={handleSearchTermChange}
       />
+      <Notification message={"Error message test"} isError={false}/>
       <h2>add a new</h2>
       <PersonForm
         addName={addContact}

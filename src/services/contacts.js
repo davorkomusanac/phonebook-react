@@ -8,7 +8,7 @@ const getAllContacts = () => {
 
 const createContact = (newObject) => {
   const request = axios.post(baseUrl, newObject);
-  return request.then((reponse) => reponse.data);
+  return request.then((response) => response.data);
 };
 
 const removeContact = (id) => {

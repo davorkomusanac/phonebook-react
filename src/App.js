@@ -49,20 +49,18 @@ const App = () => {
       phoneService
         .createContact(newPerson)
         .then((person) => {
-          setPersons(persons.concat(newPerson));
+          setPersons(persons.concat(person));
           setNewName("");
           setNewNumber("");
           setNotification({
-            message: `Added ${newPerson.name}`,
+            message: `Added ${person.name}`,
             isErrorNotification: false,
           });
           setTimeout(() => {
             setNotification({ message: "", isErrorNotification: false });
           }, 5000);
         })
-        .catch((error) => {
-          handleErrorPopup(error);
-        });
+        .catch((error) => handleErrorPopup(error));
     }
   };
 
@@ -76,9 +74,7 @@ const App = () => {
             persons.filter((person) => person.name !== personToBeRemoved.name)
           );
         })
-        .catch((error) => {
-          handleErrorPopup(error);
-        });
+        .catch((error) => handleErrorPopup(error));
     }
   };
 
@@ -99,28 +95,28 @@ const App = () => {
         .then((returnedPerson) => {
           setPersons(
             persons.map((person) =>
-              person.name !== updatedPerson.name ? person : returnedPerson
+              person.name !== returnedPerson.name ? person : returnedPerson
             )
           );
           setNewName("");
           setNewNumber("");
           setNotification({
-            message: `Updated ${updatedPerson.name}`,
+            message: `Updated ${returnedPerson.name}`,
             isErrorNotification: false,
           });
           setTimeout(() => {
             setNotification({ message: "", isErrorNotification: false });
           }, 5000);
         })
-        .catch((error) => {
-          handleErrorPopup(error);
-        });
+        .catch((error) => handleErrorPopup(error));
     }
   };
 
   const handleErrorPopup = (error) => {
     setNotification({
-      message: `There was an error: "${error}"`,
+      message: `There was an error: "${
+        error.response.data ? error.response.data.error : error
+      }"`,
       isErrorNotification: true,
     });
     setTimeout(() => {
